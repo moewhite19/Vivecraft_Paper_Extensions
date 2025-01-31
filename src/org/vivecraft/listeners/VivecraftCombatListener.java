@@ -1,8 +1,8 @@
 package org.vivecraft.listeners;
 
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -155,7 +155,7 @@ public class VivecraftCombatListener implements Listener{
 					//Override it here. It should be set back to normal next tick.
 					//And ideally nothing weird happens because of it.
 
-					((CraftEntity) damager).getHandle().setXRot((float) Math.toDegrees(Math.asin(dir.y/dir.length()))); 
+					((CraftEntity) damager).getHandle().setXRot((float) Math.toDegrees(Math.asin(dir.y/dir.length())));
 					((CraftEntity) damager).getHandle().setYRot((float) Math.toDegrees(Math.atan2(-dir.x, dir.z))); 
 				}
 			}

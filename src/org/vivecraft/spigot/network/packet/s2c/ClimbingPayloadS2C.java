@@ -1,0 +1,71 @@
+package org.vivecraft.spigot.network.packet.s2c;
+
+import net.minecraft.ResourceLocationException;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import org.vivecraft.spigot.network.ClimbeyBlockmode;
+import org.vivecraft.spigot.network.packet.PayloadIdentifier;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * packet that holds if the server allows climbing, and optionally a list of blocks that are allowed or blocked
+ *
+ * @param allowed if climbing is enabled
+ * @param blocks  list of blocks, can be {@code null}
+ */
+public record ClimbingPayloadS2C(boolean allowed,ClimbeyBlockmode blockmode,
+                                 @Nullable List<String> blocks) implements VivecraftPayloadS2C {
+
+    @Override
+    public PayloadIdentifier payloadId() {
+        return PayloadIdentifier.CLIMBING;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeByte(payloadId().ordinal());
+        buffer.writeBoolean(this.allowed);
+        buffer.writeByte(this.blockmode.ordinal());
+        if (this.blocks != null){
+            for (String block : this.blocks) {
+                try{
+                    Holder.Reference<Block> b = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(block))
+                            .orElseGet(() -> null);
+                    // only send valid blocks
+                    if (b != null && b.value() != Blocks.AIR){
+                        buffer.writeUtf(block);
+                    }
+                }catch (ResourceLocationException ignore){
+                }
+            }
+        }
+    }
+
+    public static ClimbingPayloadS2C read(FriendlyByteBuf buffer) {
+        boolean allowed = buffer.readBoolean();
+
+        //todo 需要重新实现， 注释只是为了能正常编译
+        // legacy support, very old server plugin versions didn't have blocklists
+        if (buffer.readableBytes() > 0){
+            ClimbeyBlockmode blockmode = ClimbeyBlockmode.values()[buffer.readByte()];
+            List<String> blocks = new ArrayList<>();
+            // there could be no blocks sent
+            if (buffer.readableBytes() > 0){
+                while (buffer.readableBytes() > 0) {
+                    blocks.add(buffer.readUtf());
+                }
+            }
+            return new ClimbingPayloadS2C(allowed,blockmode,blocks);
+        } else {
+            return new ClimbingPayloadS2C(allowed,ClimbeyBlockmode.DISABLED,null);
+        }
+//        return new ClimbingPayloadS2C(allowed,null);
+    }
+}

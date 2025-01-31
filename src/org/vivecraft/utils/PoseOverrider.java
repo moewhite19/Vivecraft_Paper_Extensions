@@ -1,6 +1,6 @@
 package org.vivecraft.utils;
 
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Player;
 import org.vivecraft.Reflector;
 import org.vivecraft.VSE;

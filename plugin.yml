@@ -1,15 +1,15 @@
 name: Vivecraft-Spigot-Extensions
-version: '1.20.6-1'
-api-version: '1.20'
+version: '1.21.4-1'
+api-version: '1.21'
 main: org.vivecraft.VSE
 website: http://www.vivecraft.org/
-author: jrbudda, jaron780
+author: jrbudda, jaron780, moewhite19
 prefix: Vivecraft
-softdepend: [Vault]
+softdepend: [ Vault ]
 commands:
-   Vive:
-      description: Vivecraft Spigot Extensions
-      usage: /vive <command>
-   vse:
-      description: Vivecraft Spigot Extensions
-      usage: /vse <command>
+  Vive:
+    description: Vivecraft Spigot Extensions
+    usage: /vive <command>
+  vse:
+    description: Vivecraft Spigot Extensions
+    usage: /vse <command>

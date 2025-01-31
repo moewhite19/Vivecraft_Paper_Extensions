@@ -12,6 +12,8 @@ general:
   vive-only-kickwaittime: 200
   #Set to false to disable registering Vivecraft-specific crafting recipes.
   vive-crafting: true
+  #If you want to use metadata.
+  use-meat-data : false
 SendPlayerData:
   #Send player data to all clients with Vivecraft
   enabled: true
@@ -66,8 +68,8 @@ welcomemsg:
 climbey:
   #Allows use of jump_boots and climb_claws. Provide with /give (player) climb_claws | jump_boots
   enabled: false
-  #Sets which blocks are climb-able. Options are 'None': List ignored. All blocks are climbable. 'Include': Only blocks on the list are climbable. 'Exclude': All blocks are climbable except those on the list
-  blockmode: None
+  #If it is true, use the whitelist mode; otherwise, use the blacklist.
+  whitelist: true
   #The list of block names for use with include/exclude block mode.
   blocklist:
     - white_wool

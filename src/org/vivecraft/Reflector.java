@@ -27,7 +27,7 @@ public class Reflector {
     static {
         try{
             //    public static Field SynchedEntityData_itemsById = getPrivateField("itemsById",SynchedEntityData.class);
-            SynchedEntityData_itemsById = getFieldFormType(SynchedEntityData.class,SynchedEntityData.DataItem.class);
+            SynchedEntityData_itemsById = getFieldFormType(SynchedEntityData.class,SynchedEntityData.DataItem.class.arrayType());
             SynchedEntityData_itemsById.setAccessible(true);
 //            Entity_Data_Pose = getPrivateField("DATA_POSE",Entity.class);
             Entity_Data_Pose = getFieldFormType(Entity.class,makeGenericTypes(EntityDataAccessor.class,Pose.class));
@@ -43,6 +43,7 @@ public class Reflector {
             aboveGroundTickCount.setAccessible(true);
 
         }catch (NoSuchFieldException e){
+            e.printStackTrace();
         }
     }
 

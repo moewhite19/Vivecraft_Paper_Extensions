@@ -164,14 +164,17 @@ public class VSE extends JavaPlugin implements Listener {
                     }
                 }
             }
-            final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+            final String blockModeName = sec.getString("blockmode");
+            ClimbeyBlockmode climbeyBlockmode;
             try{
-                final ClimbeyBlockmode blockmode = ClimbeyBlockmode.valueOf(getConfig().getString("climbey.blockmode"));
-                new ClimbingPayloadS2C(getConfig().getBoolean("climbey.enabled"),blockmode,blocklist).write(buffer);
-                climbeyBlocksRaw = Arrays.copyOfRange(buffer.array(),buffer.arrayOffset(),buffer.arrayOffset() + buffer.readableBytes());
+                climbeyBlockmode = ClimbeyBlockmode.valueOf(blockModeName);
             }catch (IllegalArgumentException e){
-                e.printStackTrace();
+                getLogger().warning("Unknown climbey block mode: " + blockModeName);
+                climbeyBlockmode = ClimbeyBlockmode.DISABLED;
             }
+            final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+            new ClimbingPayloadS2C(sec.getBoolean("enabled"),climbeyBlockmode,blocklist).write(buffer);
+            climbeyBlocksRaw = Arrays.copyOfRange(buffer.array(),buffer.arrayOffset(),buffer.arrayOffset() + buffer.readableBytes());
         }
         // end Config part
 
@@ -189,9 +192,10 @@ public class VSE extends JavaPlugin implements Listener {
 
         Headshot.init(this);
 
-        if (getConfig().getBoolean("setSpigotConfig.enabled")){
-            SpigotConfig.movedWronglyThreshold = getConfig().getDouble("setSpigotConfig.movedWronglyThreshold");
-            SpigotConfig.movedTooQuicklyMultiplier = getConfig().getDouble("setSpigotConfig.movedTooQuickly");
+        sec = getConfig().getConfigurationSection("setSpigotConfig");
+        if (sec != null && sec.getBoolean("enabled")){
+            SpigotConfig.movedWronglyThreshold = sec.getDouble("movedWronglyThreshold");
+            SpigotConfig.movedTooQuicklyMultiplier = sec.getDouble("movedTooQuickly");
         }
 
         debug = (getConfig().getBoolean("general.debug",false));

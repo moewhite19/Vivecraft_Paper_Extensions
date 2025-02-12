@@ -71,7 +71,7 @@ public class VSE extends JavaPlugin implements Listener {
 
     int SERVER_NETWORK_VERSION = 1;
     public final static String CHANNEL = "vivecraft:data";
-    private final static String readurl = "https://raw.githubusercontent.com/jrbudda/Vivecraft_Spigot_Extensions/1.20/version.txt";
+    private final static String readurl = "https://raw.githubusercontent.com/jrbudda/Vivecraft_Spigot_Extensions/1.21/version.txt";
     private final static int bStatsId = 6931;
 
     public static Map<UUID, VivePlayer> vivePlayers = new HashMap<UUID, VivePlayer>();
@@ -150,7 +150,6 @@ public class VSE extends JavaPlugin implements Listener {
         ConfigurationSection sec = config.getConfigurationSection("climbey");
 
         if (sec != null){
-
             List<String> temp = sec.getStringList("blocklist");
             //make an attempt to validate these on the server for debugging.
             if (temp != null){
@@ -159,14 +158,19 @@ public class VSE extends JavaPlugin implements Listener {
                     try{
                         final Optional<Holder.Reference<Block>> holder = BuiltInRegistries.BLOCK.get(ResourceLocation.read(string).getOrThrow());
                         blocklist.add(string);
-                        final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-                        new ClimbingPayloadS2C(getConfig().getBoolean("climbey.enabled"),getConfig().getBoolean("climbey.whitelist") ? ClimbeyBlockmode.WHITELIST : ClimbeyBlockmode.BLACKLIST,blocklist).write(buffer);
-//                        climbeyBlocks = buffer.array();
-                        climbeyBlocksRaw = Arrays.copyOfRange(buffer.array(),buffer.arrayOffset(),buffer.arrayOffset() + buffer.readableBytes());
+
                     }catch (IllegalStateException e){
                         getLogger().warning("Unknown climbey block name: " + string);
                     }
                 }
+            }
+            final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+            try{
+                final ClimbeyBlockmode blockmode = ClimbeyBlockmode.valueOf(getConfig().getString("climbey.blockmode"));
+                new ClimbingPayloadS2C(getConfig().getBoolean("climbey.enabled"),blockmode,blocklist).write(buffer);
+                climbeyBlocksRaw = Arrays.copyOfRange(buffer.array(),buffer.arrayOffset(),buffer.arrayOffset() + buffer.readableBytes());
+            }catch (IllegalArgumentException e){
+                e.printStackTrace();
             }
         }
         // end Config part
@@ -386,8 +390,6 @@ public class VSE extends JavaPlugin implements Listener {
 
 
     public void startUpdateCheck() {
-        //todo 原项目已停更。等待重写
-        if (true) return;
         PluginDescriptionFile pdf = getDescription();
         String version = pdf.getVersion();
         getLogger().info("Version: " + version);

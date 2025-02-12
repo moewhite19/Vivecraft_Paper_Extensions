@@ -43,7 +43,8 @@ public class Reflector {
             aboveGroundTickCount.setAccessible(true);
 
         }catch (NoSuchFieldException e){
-            e.printStackTrace();
+            //if error
+            throw new RuntimeException(e);
         }
     }
 

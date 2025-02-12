@@ -67,8 +67,10 @@ welcomemsg:
 climbey:
   #Allows use of jump_boots and climb_claws. Provide with /give (player) climb_claws | jump_boots
   enabled: false
-  #Sets which blocks are climb-able. Options are 'None': List ignored. All blocks are climbable. 'Include': Only blocks on the list are climbable. 'Exclude': All blocks are climbable except those on the list
-  blockmode: None
+  # "DISABLED" = List ignored. All blocks are climbable.
+  # "WHITELIST" = Only blocks on the list are climbable.
+  # "BLACKLIST" = All blocks are climbable except those on the list
+  blockmode: 'DISABLED'
   #The list of block names for use with include/exclude block mode.
   blocklist:
     - white_wool

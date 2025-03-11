@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
 import org.vivecraft.listeners.VivecraftNetworkListener;
+import org.vivecraft.spigot.network.BodyPart;
 import org.vivecraft.spigot.network.FBTMode;
 import org.vivecraft.spigot.network.Pose;
 import org.vivecraft.spigot.network.VrPlayerState;
@@ -27,12 +28,12 @@ import net.minecraft.world.phys.Vec3;
 public class VivePlayer {
     public byte[] draw;
     public byte[] uberData;
-    public float worldScale;
+    public float worldScale = 1f;
     public float heightScale = 1f;
     boolean isTeleportMode;
     boolean isReverseHands;
     boolean isVR;
-    public byte activeHand;
+    public BodyPart activeBodyPart = BodyPart.MAIN_HAND;
     public boolean crawling;
 
     public Vec3 offset = new Vec3(0,0,0);
@@ -116,9 +117,9 @@ public class VivePlayer {
     }
 
     @SuppressWarnings("unused")
-    public Vec3 getControllerDir(int controller) {
+    public Vec3 getControllerDir(BodyPart controller) {
         if (state != null){
-            final Pose pose = controller == 0 ? state.mainHand() : state.offHand();
+            final Pose pose = controller == BodyPart.MAIN_HAND ? state.mainHand() : state.offHand();
             Vector3 forward = new Vector3(0,0,-1);
             final Quaternionfc orientation = pose.orientation();
             Quaternion q = new Quaternion(orientation.w(),orientation.x(),orientation.y(),orientation.z());
@@ -144,11 +145,11 @@ public class VivePlayer {
         return player.getLocation(); //why
     }
 
-    public Location getControllerPos(int c) {
+    public Location getControllerPos(BodyPart part) {
         if (state != null){
             if (this.isSeated()){
                 Vec3 dir = this.getHMDDir();
-                dir = dir.yRot((float) Math.toRadians(c == 0 ? -35 : 35));
+                dir = dir.yRot((float) Math.toRadians(part == BodyPart.MAIN_HAND ? -35 : 35));
                 dir = new Vec3(dir.x,0,dir.z);
                 dir = dir.normalize();
                 Location out = this.getHMDPos().add(dir.x * 0.3 * worldScale,-0.4 * worldScale,dir.z * 0.3 * worldScale);
@@ -156,7 +157,7 @@ public class VivePlayer {
             }
 
             //获取手柄的坐标
-            final Vector3fc position = c == 0 ? state.mainHand().position() : state.offHand().position();
+            final Vector3fc position = part == BodyPart.MAIN_HAND ? state.mainHand().position() : state.offHand().position();
             return player.getLocation().add(position.x(),position.y(),position.z()).add(offset.x,offset.y,offset.z);
 //                return player.getLocation().add(x,y,z).add(offset.x,offset.y,offset.z);
         }

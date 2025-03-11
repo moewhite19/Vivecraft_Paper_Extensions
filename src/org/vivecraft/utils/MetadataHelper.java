@@ -11,6 +11,7 @@ import org.vivecraft.VivePlayer;
 import org.bukkit.util.Vector;
 import org.bukkit.Location;
 import net.minecraft.world.phys.Vec3;
+import org.vivecraft.spigot.network.BodyPart;
 
 public class MetadataHelper {
 	public static void updateMetdata(final VivePlayer data) {
@@ -22,17 +23,17 @@ public class MetadataHelper {
 			return new float[]{quat.w, quat.x, quat.y, quat.z};
 		});
 
-		addOrInvalidateKey(data.player, "righthand.pos", () -> getPos(data.getControllerPos(0), data.getControllerDir(0)));
-		addOrInvalidateKey(data.player, "righthand.aim", () -> data.getControllerDir(0)); // Really seriously don't use this one.
-		addOrInvalidateKey(data.player, "righthand.dir", () -> getAim(data.getControllerDir(0)));
+		addOrInvalidateKey(data.player, "righthand.pos", () -> getPos(data.getControllerPos(BodyPart.MAIN_HAND), data.getControllerDir(BodyPart.MAIN_HAND)));
+		addOrInvalidateKey(data.player, "righthand.aim", () -> data.getControllerDir(BodyPart.MAIN_HAND)); // Really seriously don't use this one.
+		addOrInvalidateKey(data.player, "righthand.dir", () -> getAim(data.getControllerDir(BodyPart.MAIN_HAND)));
 		addOrInvalidateKey(data.player, "righthand.rot", () -> {
 			Quaternion quat = data.getControllerRot(0);
 			return new float[]{quat.w, quat.x, quat.y, quat.z};
 		});
 
-		addOrInvalidateKey(data.player, "lefthand.pos", () -> getPos(data.getControllerPos(1), data.getControllerDir(1)));
-		addOrInvalidateKey(data.player, "lefthand.aim", () -> data.getControllerDir(1)); // It's an nms class, don't use it, use the other one.
-		addOrInvalidateKey(data.player, "lefthand.dir", () -> getAim(data.getControllerDir(1)));
+		addOrInvalidateKey(data.player, "lefthand.pos", () -> getPos(data.getControllerPos(BodyPart.OFF_HAND), data.getControllerDir(BodyPart.OFF_HAND)));
+		addOrInvalidateKey(data.player, "lefthand.aim", () -> data.getControllerDir(BodyPart.OFF_HAND)); // It's an nms class, don't use it, use the other one.
+		addOrInvalidateKey(data.player, "lefthand.dir", () -> getAim(data.getControllerDir(BodyPart.OFF_HAND)));
 		addOrInvalidateKey(data.player, "lefthand.rot", () -> {
 			Quaternion quat = data.getControllerRot(1);
 			return new float[]{quat.w, quat.x, quat.y, quat.z};
@@ -40,7 +41,7 @@ public class MetadataHelper {
 
 		addOrInvalidateKey(data.player, "seated", data::isSeated);
 		addOrInvalidateKey(data.player, "height", () -> data.heightScale);
-		addOrInvalidateKey(data.player, "activehand", () -> data.activeHand == 0 ? "right" : "left");
+		addOrInvalidateKey(data.player, "activehand", () -> data.activeBodyPart == BodyPart.MAIN_HAND ? "right" : "left");
 	}
 
 	public static void cleanupMetadata(Player player) {

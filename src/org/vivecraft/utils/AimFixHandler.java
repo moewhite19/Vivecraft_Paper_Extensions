@@ -19,6 +19,7 @@ import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.vivecraft.spigot.network.BodyPart;
 
 public class AimFixHandler extends ChannelInboundHandlerAdapter {
 	private final Connection netManager;
@@ -53,8 +54,8 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
 			VivePlayer data = null;
 			if (VSE.vivePlayers.containsKey(uuid) && VSE.vivePlayers.get(uuid).isVR()) { // Check again in case of race condition
 				data = VSE.vivePlayers.get(uuid);
-				Location pos = data.getControllerPos(0);
-				Vec3 aim = data.getControllerDir(0);
+				Location pos = data.getControllerPos(BodyPart.MAIN_HAND);
+				Vec3 aim = data.getControllerDir(BodyPart.MAIN_HAND);
 
 				// Inject our custom orientation data
 				player.setPosRaw(pos.getX(), pos.getY(), pos.getZ());

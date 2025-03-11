@@ -7,17 +7,25 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.sql.Ref;
 import java.util.Arrays;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.vivecraft.Reflector;
 import org.vivecraft.VSE;
 import org.vivecraft.VivePlayer;
+import org.vivecraft.spigot.network.BodyPart;
 import org.vivecraft.spigot.network.VrPlayerState;
+import org.vivecraft.spigot.network.packet.c2s.ActiveBodyPartPayloadC2S;
 import org.vivecraft.utils.PoseOverrider;
 
 import net.minecraft.server.level.ServerPlayer;
@@ -243,7 +251,42 @@ public class VivecraftNetworkListener implements PluginMessageListener {
                 nms.fallDistance = 0;
                 Reflector.setFieldValue(Reflector.aboveGroundTickCount,nms.connection,0);
                 break;
-            case ACTIVEHAND:
+            case ACTIVEHAND: {
+                VivePlayer vivePlayer = VSE.vivePlayers.get(sender.getUniqueId());
+                BodyPart newBodyPart = vivePlayer.isSeated() ? BodyPart.MAIN_HAND : ActiveBodyPartPayloadC2S.read(new FriendlyByteBuf(Unpooled.wrappedBuffer(data))).bodyPart();
+                if (vivePlayer.activeBodyPart != newBodyPart){
+                    Player player = vivePlayer.player;
+                    // handle equipment changes
+                    vivePlayer.activeBodyPart = newBodyPart;
+                    final EntityEquipment equipment = player.getEquipment();
+//                    ItemStack oldItem = equipment.getItem(org.bukkit.inventory.EquipmentSlot.HAND);
+//                    ItemStack newItem = player.getItemBySlot(EquipmentSlot.MAINHAND);
+
+                    // attribute modification, based on vanilla code: LivingEntity#collectEquipmentChanges
+//                    if (player.equipmentHasChanged(oldItem,newItem)){
+//                        AttributeMap attributeMap = ();
+//                        if (!oldItem.isEmpty()){
+//                            oldItem.forEachModifier(EquipmentSlot.MAINHAND,(holder,attributeModifier) -> {
+//                                AttributeInstance attributeInstance = attributeMap.getInstance(holder);
+//                                if (attributeInstance != null){
+//                                    attributeInstance.removeModifier(attributeModifier);
+//                                }
+//                            });
+//                        }
+//
+//                        if (!newItem.isEmpty()){
+//                            newItem.forEachModifier(EquipmentSlot.MAINHAND,(holder,attributeModifier) -> {
+//                                AttributeInstance attributeInstance = attributeMap.getInstance(holder);
+//                                if (attributeInstance != null){
+//                                    attributeInstance.removeModifier(attributeModifier.id());
+//                                    attributeInstance.addTransientModifier(attributeModifier);
+//                                }
+//                            });
+//                        }
+//                    }
+                }
+            }
+/*
                 ByteArrayInputStream a2 = new ByteArrayInputStream(data);
                 DataInputStream b2 = new DataInputStream(a2);
                 try{
@@ -253,6 +296,7 @@ public class VivecraftNetworkListener implements PluginMessageListener {
                     e2.printStackTrace();
                 }
                 break;
+*/
             case CRAWL:
                 if (!vse.getConfig().getBoolean("crawling.enabled"))
                     break;

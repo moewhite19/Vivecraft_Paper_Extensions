@@ -1,13 +1,8 @@
 package org.vivecraft;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Player;
@@ -23,7 +18,12 @@ import org.vivecraft.utils.MetadataHelper;
 import org.vivecraft.utils.Quaternion;
 import org.vivecraft.utils.Vector3;
 
-import net.minecraft.world.phys.Vec3;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class VivePlayer {
     public byte[] draw;
@@ -47,21 +47,10 @@ public class VivePlayer {
     }
 
     public float getDraw() {
-        try{
-            if (draw != null){
-                ByteArrayInputStream byin = new ByteArrayInputStream(draw);
-                DataInputStream da = new DataInputStream(byin);
-
-                float draw = da.readFloat();
-
-                da.close(); //needed?
-                return draw;
-            } else {
-            }
-        }catch (IOException e){
-
+        if (draw != null){
+            //把draw这个 byte[] 转换成float
+            return ByteBuffer.wrap(draw).getFloat();
         }
-
         return 0;
     }
 

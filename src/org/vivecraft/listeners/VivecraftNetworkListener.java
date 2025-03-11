@@ -88,14 +88,14 @@ public class VivecraftNetworkListener implements PluginMessageListener {
 //                vp.controller1data = data;
 //                MetadataHelper.updateMetdata(vp);
                 break;
-            case DRAW:
-                vp.draw = data;
-                break;
             case HEADDATA:
 //                vp.hmdData = data;
 //                MetadataHelper.updateMetdata(vp);
                 break;
 */
+            case DRAW:
+                vp.draw = data;
+                break;
             case MOVEMODE:
                 break;
             case REQUESTDATA:

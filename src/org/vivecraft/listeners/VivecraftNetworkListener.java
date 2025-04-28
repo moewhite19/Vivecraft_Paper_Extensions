@@ -240,7 +240,7 @@ public class VivecraftNetworkListener implements PluginMessageListener {
                     float y = d.readFloat();
                     float z = d.readFloat();
                     ServerPlayer nms = ((CraftPlayer) sender).getHandle();
-                    nms.absMoveTo(x,y,z,nms.getXRot(),nms.getYRot());
+                    nms.absSnapTo(x,y,z,nms.getXRot(),nms.getYRot());
                 }catch (IOException e){
                     e.printStackTrace();
                 }

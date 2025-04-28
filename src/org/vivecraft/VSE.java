@@ -7,6 +7,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Callable;
 
+import cn.handyplus.lib.adapter.HandyRunnable;
+import cn.handyplus.lib.adapter.HandySchedulerUtil;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
@@ -77,7 +79,7 @@ public class VSE extends JavaPlugin implements Listener {
     public static Map<UUID, VivePlayer> vivePlayers = new HashMap<UUID, VivePlayer>();
     public static VSE me;
 
-    private int sendPosDataTask = 0;
+    private HandyRunnable sendPosDataTask = null;
     public List<String> blocklist = new ArrayList<>();
     byte[] climbeyBlocksRaw;
     byte[] serverNetworkVersionRaw;
@@ -90,6 +92,7 @@ public class VSE extends JavaPlugin implements Listener {
     public void onEnable() {
         super.onEnable();
         me = this;
+
 
         if (getConfig().getBoolean("general.vive-crafting",true)){
             {
@@ -200,11 +203,15 @@ public class VSE extends JavaPlugin implements Listener {
 
         debug = (getConfig().getBoolean("general.debug",false));
 
-        sendPosDataTask = getServer().getScheduler().scheduleSyncRepeatingTask(this,new Runnable() {
+        sendPosDataTask = new HandyRunnable() {
             public void run() {
                 sendPosData();
             }
-        },20,1);
+        };
+
+        HandySchedulerUtil.init(this);
+
+        HandySchedulerUtil.runTaskTimer(sendPosDataTask,20,1);
 
         //check for any creepers and modify the fuse radius
         CheckAllEntities();
@@ -214,7 +221,7 @@ public class VSE extends JavaPlugin implements Listener {
             getLogger().severe("Vault not found, permissions groups will not be set");
             vault = false;
         }
-        getServer().getScheduler().scheduleAsyncDelayedTask(this,new BukkitRunnable() {
+        HandySchedulerUtil.runTaskLaterAsynchronously(new BukkitRunnable() {
             @Override
             public void run() {
                 startUpdateCheck();
@@ -327,7 +334,9 @@ public class VSE extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        getServer().getScheduler().cancelTask(sendPosDataTask);
+        if (sendPosDataTask != null){
+            sendPosDataTask.cancel();
+        }
         super.onDisable();
     }
 
@@ -352,39 +361,36 @@ public class VSE extends JavaPlugin implements Listener {
         if (debug)
             getLogger().info("Checking " + event.getPlayer().getName() + " for Vivecraft");
 
-        getServer().getScheduler().scheduleSyncDelayedTask(this,new Runnable() {
-            @Override
-            public void run() {
-                if (p.isOnline()){
-                    boolean kick = false;
+        HandySchedulerUtil.runTaskLaterAsynchronously(() -> {
+            if (p.isOnline()){
+                boolean kick = false;
 
-                    if (vivePlayers.containsKey(p.getUniqueId())){
-                        VivePlayer vp = VSE.vivePlayers.get(p.getUniqueId());
-                        if (debug)
-                            getLogger().info(p.getName() + " using: " + vp.version + " " + (vp.isVR() ? "VR" : "NONVR") + " " + (vp.isSeated() ? "SEATED" : ""));
-                        if (!vp.isVR()) kick = true;
-                    } else {
-                        kick = true;
-                        if (debug)
-                            getLogger().info(p.getName() + " Vivecraft not detected");
-                    }
-
-                    if (kick){
-                        if (getConfig().getBoolean("general.vive-only")){
-                            if (getConfig().getBoolean("general.allow-op") == false || !p.isOp()){
-                                getLogger().info(p.getName() + " " + "got kicked for not using Vivecraft");
-                                p.kickPlayer(getConfig().getString("general.vive-only-kickmessage"));
-                            }
-                            return;
-                        }
-                    }
-
-                    sendWelcomeMessage(p);
-                    setPermissionsGroup(p);
-                } else {
+                if (vivePlayers.containsKey(p.getUniqueId())){
+                    VivePlayer vp = VSE.vivePlayers.get(p.getUniqueId());
                     if (debug)
-                        getLogger().info(p.getName() + " no longer online! ");
+                        getLogger().info(p.getName() + " using: " + vp.version + " " + (vp.isVR() ? "VR" : "NONVR") + " " + (vp.isSeated() ? "SEATED" : ""));
+                    if (!vp.isVR()) kick = true;
+                } else {
+                    kick = true;
+                    if (debug)
+                        getLogger().info(p.getName() + " Vivecraft not detected");
                 }
+
+                if (kick){
+                    if (getConfig().getBoolean("general.vive-only")){
+                        if (getConfig().getBoolean("general.allow-op") == false || !p.isOp()){
+                            getLogger().info(p.getName() + " " + "got kicked for not using Vivecraft");
+                            p.kickPlayer(getConfig().getString("general.vive-only-kickmessage"));
+                        }
+                        return;
+                    }
+                }
+
+                sendWelcomeMessage(p);
+                setPermissionsGroup(p);
+            } else {
+                if (debug)
+                    getLogger().info(p.getName() + " no longer online! ");
             }
         },t);
 

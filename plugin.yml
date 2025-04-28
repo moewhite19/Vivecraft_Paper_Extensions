@@ -1,11 +1,14 @@
 name: Vivecraft-Spigot-Extensions
-version: '1.21.4-5'
+version: '1.21.4-6'
 api-version: '1.21'
 main: org.vivecraft.VSE
 website: http://www.vivecraft.org/
 author: jrbudda, jaron780, moewhite19
 prefix: Vivecraft
+libraries:
+  - cn.handyplus.lib.adapter:FoliaLib:1.2.0
 softdepend: [ Vault ]
+folia-supported: true
 commands:
   Vive:
     description: Vivecraft Spigot Extensions

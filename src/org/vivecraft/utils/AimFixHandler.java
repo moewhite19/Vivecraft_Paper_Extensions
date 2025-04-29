@@ -2,6 +2,7 @@ package org.vivecraft.utils;
 
 import java.util.UUID;
 
+import cn.handyplus.lib.adapter.HandySchedulerUtil;
 import org.bukkit.Location;
 import org.vivecraft.Reflector;
 import org.vivecraft.VSE;
@@ -38,8 +39,7 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
 			ctx.fireChannelRead(msg);
 			return;
 		}
-
-		player.getServer().submit(() -> {
+		HandySchedulerUtil.runTask(() -> {
 			// Save all the current orientation data
 			Vec3 oldPos = player.position();
 			Vec3 oldPrevPos = new Vec3(player.xo, player.yo, player.zo);
@@ -79,7 +79,7 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
 				if (netManager.isConnected()) {
 					try {
 						((Packet)msg).handle(this.netManager.getPacketListener());
-					} 
+					}
 					catch (RunningOnDifferentThreadException runningondifferentthreadexception)
 					{
 					}
@@ -107,5 +107,6 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
 			if (data != null)
 				data.offset = new Vec3(0, 0, 0);
 		});
+//		player.getServer().submit();
 	}
 }

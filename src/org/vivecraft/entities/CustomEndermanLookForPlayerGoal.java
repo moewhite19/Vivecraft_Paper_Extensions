@@ -79,7 +79,7 @@ public class CustomEndermanLookForPlayerGoal extends NearestAttackableTargetGoal
 
     public void tick() {
         if (this.enderman.getTarget() == null){
-            super.setTarget((LivingEntity) null);
+            super.setTarget(null);
         }
 
         if (this.pendingTarget != null){

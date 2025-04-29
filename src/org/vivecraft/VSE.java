@@ -272,24 +272,25 @@ public class VSE extends JavaPlugin implements Listener {
             }
             e.goalSelector.addGoal(2,new CustomGoalSwell(e));
         } else if (entity.getType() == EntityType.ENDERMAN){
-            EnderMan e = ((CraftEnderman) entity).getHandle();
-            AbstractCollection<WrappedGoal> targets = (AbstractCollection<WrappedGoal>) Reflector.getFieldValue(Reflector.availableGoals,e.targetSelector);
-            for (WrappedGoal b : targets) {
-                if (b.getPriority() == Reflector.enderManLookTargetPriority){ //replace PlayerWhoLookedAt target. Class is private cant use instanceof, check priority on all new versions.
-                    targets.remove(b);
-                    break;
-                }
-            }
-            e.targetSelector.addGoal(Reflector.enderManLookTargetPriority,new CustomEndermanLookForPlayerGoal(e,e::isAngryAt));
-
-            AbstractCollection<WrappedGoal> goals = (AbstractCollection<WrappedGoal>) Reflector.getFieldValue(Reflector.availableGoals,e.goalSelector);
-            for (WrappedGoal b : goals) {
-                if (b.getPriority() == Reflector.enderManFreezePriority){//replace EndermanFreezeWhenLookedAt goal. Verify priority on new version.
-                    goals.remove(b);
-                    break;
-                }
-            }
-            e.goalSelector.addGoal(Reflector.enderManFreezePriority,new CustomEndermanFreezeWhenLookedAt(e));
+            //todo not working
+//            EnderMan e = ((CraftEnderman) entity).getHandle();
+//            AbstractCollection<WrappedGoal> targets = (AbstractCollection<WrappedGoal>) Reflector.getFieldValue(Reflector.availableGoals,e.targetSelector);
+//            for (WrappedGoal b : targets) {
+//                if (b.getPriority() == Reflector.enderManLookTargetPriority){ //replace PlayerWhoLookedAt target. Class is private cant use instanceof, check priority on all new versions.
+//                    targets.remove(b);
+//                    break;
+//                }
+//            }
+//            e.targetSelector.addGoal(Reflector.enderManLookTargetPriority,new CustomEndermanLookForPlayerGoal(e,e::isAngryAt));
+//
+//            AbstractCollection<WrappedGoal> goals = (AbstractCollection<WrappedGoal>) Reflector.getFieldValue(Reflector.availableGoals,e.goalSelector);
+//            for (WrappedGoal b : goals) {
+//                if (b.getPriority() == Reflector.enderManFreezePriority){//replace EndermanFreezeWhenLookedAt goal. Verify priority on new version.
+//                    goals.remove(b);
+//                    break;
+//                }
+//            }
+//            e.goalSelector.addGoal(Reflector.enderManFreezePriority,new CustomEndermanFreezeWhenLookedAt(e));
         }
     }
 
@@ -395,7 +396,8 @@ public class VSE extends JavaPlugin implements Listener {
         },t);
 
         Connection netManager = ((CraftPlayer) p).getHandle().connection.connection;
-        netManager.channel.pipeline().addBefore("packet_handler","vr_aim_fix",new AimFixHandler(netManager));
+        if (!HandySchedulerUtil.isFolia())
+            netManager.channel.pipeline().addBefore("packet_handler","vr_aim_fix",new AimFixHandler(netManager));
     }
 
 

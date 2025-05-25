@@ -1,5 +1,6 @@
 package org.vivecraft.listeners;
 
+import cn.handyplus.lib.adapter.HandySchedulerUtil;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -70,8 +71,19 @@ public class VivecraftCombatListener implements Listener {
 
         Location loc = new Location(proj.getWorld(),pos.getX() + aim.x * 0.6f,pos.getY() + aim.y * 0.6f,pos.getZ() + aim.z * 0.6f);
         double velo = proj.getVelocity().length();
-        proj.teleport(loc); //paper sets velocity to 0 on teleport.
-        proj.setVelocity(new Vector(aim.x * velo,aim.y * velo,aim.z * velo));
+        Vec3 finalAim = aim;
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                proj.teleport(loc); //paper sets velocity to 0 on teleport.
+                proj.setVelocity(new Vector(finalAim.x * velo,finalAim.y * velo,finalAim.z * velo));
+            }
+        };
+        if (HandySchedulerUtil.isFolia()){
+            proj.getScheduler().execute(vse,runnable,null,0);
+        } else {
+            runnable.run();
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
@@ -79,15 +91,12 @@ public class VivecraftCombatListener implements Listener {
 
         if (event.getDamager() instanceof Trident) return;
 
-        if (event.getDamager() instanceof Arrow && event.getEntity() instanceof LivingEntity){
-            final Arrow arrow = (Arrow) event.getDamager();
-            LivingEntity target = (LivingEntity) event.getEntity();
+        if (event.getDamager() instanceof Arrow arrow && event.getEntity() instanceof LivingEntity target){
             boolean headshot = Headshot.isHeadshot(target,arrow);
 
-            if (!(arrow.getShooter() instanceof Player) || !VSE.isVive((Player) arrow.getShooter()))
+            if (!(arrow.getShooter() instanceof Player pl) || !VSE.isVive((Player) arrow.getShooter()))
                 return;
-            Player pl = (Player) arrow.getShooter();
-            VivePlayer vp = (VivePlayer) VSE.vivePlayers.get(pl.getUniqueId());
+            VivePlayer vp = VSE.vivePlayers.get(pl.getUniqueId());
 
             if (!vp.isSeated()){
                 if (headshot){

@@ -396,8 +396,7 @@ public class VSE extends JavaPlugin implements Listener {
         },t);
 
         Connection netManager = ((CraftPlayer) p).getHandle().connection.connection;
-        if (!HandySchedulerUtil.isFolia())
-            netManager.channel.pipeline().addBefore("packet_handler","vr_aim_fix",new AimFixHandler(netManager));
+        netManager.channel.pipeline().addBefore("packet_handler","vr_aim_fix",new AimFixHandler(netManager));
     }
 
 

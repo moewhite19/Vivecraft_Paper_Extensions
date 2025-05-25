@@ -1,6 +1,9 @@
 package org.vivecraft.listeners;
 
+import cn.handyplus.lib.adapter.FoliaScheduler;
+import cn.handyplus.lib.adapter.HandySchedulerUtil;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,13 +30,14 @@ public class VivecraftItemListener implements Listener {
         if (!VSE.isVive(player))
             return;
 
-        VivePlayer vp = (VivePlayer) VSE.vivePlayers.get(player.getUniqueId());
+        VivePlayer vp = VSE.vivePlayers.get(player.getUniqueId());
 
         if (vp == null) return;
 
         float f2 = 0.3F;
 
-        if (event.getItemDrop().getType() == EntityType.ITEM){
+        final Item dropItem = event.getItemDrop();
+        if (dropItem.getType() == EntityType.ITEM){
             Vector v = new Vector();
             float yaw = player.getLocation().getYaw();
             float pitch = -player.getLocation().getPitch();
@@ -42,8 +46,15 @@ public class VivecraftItemListener implements Listener {
             v.setY((double) (Mth.sin(pitch * 0.017453292F) * f2 + 0.1F));
 
             Vec3 aim = vp.getControllerDir(BodyPart.MAIN_HAND);
-            event.getItemDrop().teleport(vp.getControllerPos(BodyPart.MAIN_HAND).add(0.2f * aim.x,0.25f * aim.y - 0.2f,0.2f * aim.z));
-            event.getItemDrop().setVelocity(v);
+            Runnable runnable = () -> {
+                dropItem.teleport(vp.getControllerPos(BodyPart.MAIN_HAND).add(0.2f * aim.x,0.25f * aim.y - 0.2f,0.2f * aim.z));
+                dropItem.setVelocity(v);
+            };
+            if (HandySchedulerUtil.isFolia()){
+                dropItem.getScheduler().execute(vse,runnable,null,0);
+            } else {
+                runnable.run();
+            }
         }
     }
 }

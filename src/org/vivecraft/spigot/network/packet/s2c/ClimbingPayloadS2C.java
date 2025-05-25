@@ -50,8 +50,6 @@ public record ClimbingPayloadS2C(boolean allowed,ClimbeyBlockmode blockmode,
 
     public static ClimbingPayloadS2C read(FriendlyByteBuf buffer) {
         boolean allowed = buffer.readBoolean();
-
-        //todo 需要重新实现， 注释只是为了能正常编译
         // legacy support, very old server plugin versions didn't have blocklists
         if (buffer.readableBytes() > 0){
             ClimbeyBlockmode blockmode = ClimbeyBlockmode.values()[buffer.readByte()];
